@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resource Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #FBFAF5;
+    --card: #FFFFFF;
+    --ink: #14163A;
+    --ink-soft: #565A78;
+    --navy: #09116D;
+    --navy-light: #2B34A0;
+    --gold: #F7BE06;
+    --gold-deep: #C99700;
+    --coral: #D6572D;
+    --coral-light: #E48A66;
+    --line: #DEDFEE;
+    --focus: #09116D;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Public Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Header ledger line ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 28px 0 18px;
+  }
+  .masthead .wrap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .brand {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .brand .dot { color: var(--gold-deep); }
+  .tally {
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Survey view ---------- */
+  #survey-view { padding: 72px 0 96px; }
+  .survey-eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--navy);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .survey-title {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 500;
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1.08;
+    max-width: 14ch;
+    margin: 0 0 14px;
+  }
+  .survey-sub {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 46ch;
+    line-height: 1.55;
+    margin: 0 0 40px;
+  }
+
+  .roll {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 760px) {
+    .roll { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 460px) {
+    .roll { grid-template-columns: 1fr; }
+  }
+
+  .roll-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 18px 16px;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    position: relative;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .roll-card::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 3px;
+    height: calc(100% - 20px);
+    background: var(--line);
+    transition: background 0.15s ease;
+  }
+  .roll-card:hover {
+    border-color: var(--navy-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(35,36,31,0.06);
+  }
+  .roll-card:hover::before { background: var(--navy); }
+
+  .skip-row {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .skip-btn {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 4px 0;
+  }
+  .skip-btn:hover { color: var(--ink); }
+
+  /* ---------- Results view ---------- */
+  #results-view { display: none; padding: 40px 0 100px; }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .results-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 28px;
+    font-weight: 500;
+    margin: 0 0 6px;
+  }
+  .results-title .who {
+    color: var(--navy);
+    font-style: italic;
+  }
+  .change-who {
+    background: none;
+    border: 1px solid var(--line);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .change-who:hover { border-color: var(--navy); color: var(--navy); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .filters {
+    position: sticky;
+    top: 20px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 16px 6px;
+  }
+  .filter-block { margin-bottom: 18px; }
+  .filter-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .search-input {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    margin-bottom: 4px;
+  }
+  .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    padding: 5px 0;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .check-row input { margin-top: 3px; accent-color: var(--navy); cursor: pointer; }
+  select.geo-select {
+    width: 100%;
+    padding: 8px 8px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  .clear-filters {
+    background: none;
+    border: none;
+    font-size: 12.5px;
+    color: var(--coral);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 4px 0 14px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    align-content: start;
+  }
+
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 18px 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .tile:hover { box-shadow: 0 6px 20px rgba(35,36,31,0.07); transform: translateY(-1px); }
+
+  .tile-geo {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    padding: 3px 7px;
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .tile-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.25;
+    padding-right: 70px;
+  }
+  .tile-name a { text-decoration: none; border-bottom: 1px solid var(--gold-deep); }
+  .tile-name a:hover { border-bottom-color: var(--gold-deep); color: var(--gold-deep); }
+
+  .tile-org {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: -6px;
+  }
+
+  .tile-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+    flex-grow: 1;
+  }
+
+  .tile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .tag.cat { background: rgba(9,17,109,0.08); color: var(--navy); }
+  .tag.aud { background: rgba(214,87,45,0.12); color: var(--coral); }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .empty-state strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 6px; font-family: 'Crimson Pro', serif; }
+
+  .count-line {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="brand">Resource Bank<span class="dot">.</span></div>
+    <div class="tally" id="header-tally"></div>
+  </div>
+</header>
+
+<section id="survey-view">
+  <div class="wrap">
+
+    <div id="q1-step">
+      <div class="survey-eyebrow">Before you dive in</div>
+      <h1 class="survey-title">What part of the democracy world are you in?</h1>
+      <p class="survey-sub">Pick what fits best and we'll surface the resources most relevant to you first. You can always browse everything or change filters afterward.</p>
+      <div class="roll" id="roll-q1"></div>
+      <div class="skip-row">
+        <button class="skip-btn" id="skip-btn">Skip — just show me everything</button>
+      </div>
+    </div>
+
+    <div id="q2-step" style="display:none;">
+      <div class="survey-eyebrow" id="q2-eyebrow">One more thing</div>
+      <h1 class="survey-title" id="q2-title">Which best describes you?</h1>
+      <p class="survey-sub">This helps us narrow things down a little further.</p>
+      <div class="roll" id="roll-q2"></div>
+      <div class="skip-row">
+        <button class="skip-btn" id="q2-back-btn">← Back</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="results-view">
+  <div class="wrap">
+    <div class="results-header">
+      <div>
+        <h2 class="results-title">Resources for <span class="who" id="who-label">you</span></h2>
+      </div>
+      <button class="change-who" id="change-who">Change who you are</button>
+    </div>
+
+    <div class="layout">
+      <aside class="filters">
+        <div class="filter-block">
+          <div class="filter-label">Search</div>
+          <input class="search-input" id="search" type="text" placeholder="Search resources or orgs…">
+        </div>
+
+        <div class="filter-block">
+          <div class="filter-label">Category</div>
+          <div id="cat-filters"></div>
+        </div>
+
+        <div class="filter-block">
+          <div class="filter-label">Audience</div>
+          <div id="aud-filters"></div>
+        </div>
+
+        <div class="filter-block">
+          <div class="filter-label">Geography</div>
+          <select class="geo-select" id="geo-filter">
+            <option value="">All geographies</option>
+          </select>
+        </div>
+
+        <button class="clear-filters" id="clear-filters">Clear all filters</button>
+      </aside>
+
+      <div>
+        <div class="count-line" id="count-line"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   DATA
+   ------------------------------------------------------------
+   This is placeholder/mock data so the tool can be built and
+   tested before the real spreadsheet is finalized.
+
+   TO CONNECT LIVE DATA FROM GOOGLE SHEETS LATER:
+   1. In Google Sheets: File > Share > Publish to web > choose
+      the relevant sheet > CSV > Publish. Copy that URL.
+   2. Set LIVE_CSV_URL below to that link.
+   3. Set USE_LIVE_DATA to true.
+   4. Make sure your sheet's column headers exactly match:
+      Resource name, Org name, Category, Audience, Description,
+      Geography, Specific geography, Link
+      (Category and Audience should be comma-separated within
+      the cell if a resource has more than one, e.g.
+      "Trainings, Fellowship")
+   Papaparse (loaded above) handles the CSV fetch + parsing —
+   see loadLiveData() near the bottom of this script.
+============================================================ */
+
+const USE_LIVE_DATA = false;
+const LIVE_CSV_URL = ""; // paste your published Google Sheets CSV link here
+
+const MOCK_DATA = [
+  {
+    name: "Movement Rest Fund",
+    org: "The Sabbatical Project",
+    category: ["Sabbatical/break", "Funding"],
+    audience: ["Movement folks", "Leaders"],
+    description: "Grants covering 6–12 weeks of paid leave for organizers and movement leaders showing signs of burnout, plus a re-entry coaching call.",
+    geography: "US",
+    specificGeography: "",
+    link: "https://example.org/movement-rest-fund"
+  },
+  {
+    name: "Somatic Support Circles",
+    org: "Rooted Body Collective",
+    category: ["Somatic/healing", "Mental healthcare"],
+    audience: ["BIPOC folks", "Healers/mental health professionals"],
+    description: "Free monthly virtual healing circles blending somatic practice and peer support, facilitated by BIPOC-identified practitioners.",
+    geography: "Global",
+    specificGeography: "",
+    link: "https://example.org/somatic-circles"
+  },
+  {
+    name: "Election Official Safety Line",
+    org: "Civic Shield Network",
+    category: ["Organizational support", "Trauma-specific"],
+    audience: ["Election officials"],
+    description: "24/7 confidential support line for election administrators facing threats or harassment, with rapid-response security consultations.",
+    geography: "US",
+    specificGeography: "",
+    link: "https://example.org/civic-shield"
+  },
+  {
+    name: "Nonprofit Ops Toolkit",
+    org: "Sturdy Roots Consulting",
+    category: ["Resource banks", "Organizational support", "Tactics/case studies"],
+    audience: ["Nonprofit executives", "Nonprofit managers"],
+    description: "Templates and case studies for HR policy, budgeting, and succession planning drawn from 40+ small nonprofits.",
+    geography: "US",
+    specificGeography: "",
+    link: "https://example.org/ops-toolkit"
+  },
+  {
+    name: "Funders Learning Cohort",
+    org: "Bridgeline Philanthropy Network",
+    category: ["Conveners and connecters", "Professional development"],
+    audience: ["Funders"],
+    description: "A closed 6-month cohort for program officers to trade notes on trust-based grantmaking practices.",
+    geography: "US",
+    specificGeography: "",
+    link: "https://example.org/funders-cohort"
+  },
+  {
+    name: "Frontline Fellowship",
+    org: "Vanguard Leadership Institute",
+    category: ["Fellowship", "Trainings", "Professional development"],
+    audience: ["Movement folks", "Nonprofit staff"],
+    description: "A paid 9-month fellowship combining leadership training with a stipend, built for staff five or more years into movement work.",
+    geography: "Global",
+    specificGeography: "",
+    link: "https://example.org/frontline-fellowship"
+  },
+  {
+    name: "Trauma-Informed Facilitation Guide",
+    org: "Steady Ground Institute",
+    category: ["Trauma-specific", "Tactics/case studies", "Trainings"],
+    audience: ["Healers/mental health professionals", "Leaders"],
+    description: "A practical field guide for running high-stakes meetings without re-traumatizing participants, with sample scripts.",
+    geography: "Global",
+    specificGeography: "",
+    link: "https://example.org/facilitation-guide"
+  },
+  {
+    name: "Grantee Wellbeing Stipends",
+    org: "Open Field Foundation",
+    category: ["Funding", "Mental healthcare"],
+    audience: ["Specific grantees"],
+    description: "Direct $2,000 wellbeing stipends for current grantee organizations' staff, no application required beyond a short form.",
+    geography: "State-specific",
+    specificGeography: "California",
+    link: "https://example.org/grantee-stipends"
+  },
+  {
+    name: "City Nonprofit Roundtable",
+    org: "Detroit Civic Alliance",
+    category: ["Conveners and connecters", "Organizational support"],
+    audience: ["Nonprofit executives", "Broad-based"],
+    description: "Monthly in-person roundtable connecting nonprofit leaders across the city for peer troubleshooting and shared resources.",
+    geography: "City-specific",
+    specificGeography: "Detroit, MI",
+    link: "https://example.org/detroit-roundtable"
+  },
+  {
+    name: "General Wellness Directory",
+    org: "Common Good Resource Hub",
+    category: ["Resource banks", "Mental healthcare"],
+    audience: ["Broad-based", "Other"],
+    description: "A searchable, general-purpose directory of low-cost mental health providers accepting nonprofit-worker referrals.",
+    geography: "US",
+    specificGeography: "",
+    link: "https://example.org/wellness-directory"
+  }
+];
+
+const CATEGORY_OPTIONS = [
+  "Resource banks","Organizational support","Mental healthcare","Trauma-specific",
+  "Somatic/healing","Sabbatical/break","Conveners and connecters","Tactics/case studies",
+  "Fellowship","Trainings","Funding","Professional development"
+];
+
+const AUDIENCE_OPTIONS = [
+  "Movement folks","Nonprofit executives","BIPOC folks","Election officials","Funders",
+  "Specific grantees","Broad-based","Other","Nonprofit staff","Nonprofit managers",
+  "Healers/mental health professionals","Leaders"
+];
+
+const GEO_OPTIONS = ["Global","US","State-specific","City-specific"];
+
+// Two-step branching survey: Q1 asks which part of the democracy
+// world someone's in; most branches then ask a narrower Q2 before
+// filtering. Funder and Healer skip straight to results.
+const Q1_OPTIONS = ["Elections", "Movement", "Nonprofit", "Funder", "Healer"];
+
+const NONPROFIT_ROLE_OPTIONS = ["Nonprofit executives", "Nonprofit staff", "Nonprofit managers"];
+
+const BRANCHES = {
+  "Elections": {
+    direct: false,
+    q2title: "Which best describes you?",
+    q2: ["Election officials", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+  },
+  "Movement": {
+    direct: false,
+    q2title: "Which best describes you?",
+    q2: ["Movement folks", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+  },
+  "Nonprofit": {
+    direct: false,
+    q2title: "Which best describes your role?",
+    q2: [...NONPROFIT_ROLE_OPTIONS, "Leaders"]
+  },
+  "Funder": { direct: true, audience: "Funders" },
+  "Healer": { direct: true, audience: "Healers/mental health professionals" }
+};
+
+let DATA = MOCK_DATA;
+let activeIdentity = null;
+const state = {
+  search: "",
+  categories: new Set(),
+  audiences: new Set(),
+  geo: ""
+};
+
+function loadLiveData() {
+  if (!USE_LIVE_DATA || !LIVE_CSV_URL) return;
+  Papa.parse(LIVE_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      DATA = results.data.map(row => ({
+        name: row["Resource name"] || "",
+        org: row["Org name"] || "",
+        category: (row["Category"] || "").split(",").map(s => s.trim()).filter(Boolean),
+        audience: (row["Audience"] || "").split(",").map(s => s.trim()).filter(Boolean),
+        description: row["Description"] || "",
+        geography: row["Geography"] || "",
+        specificGeography: row["Specific geography"] || "",
+        link: row["Link"] || "#"
+      }));
+      renderGrid();
+    },
+    error: function(err) {
+      console.error("Failed to load live sheet data, falling back to mock data.", err);
+    }
+  });
+}
+
+function init() {
+  renderQ1();
+  renderFilterOptions();
+  loadLiveData();
+  updateHeaderTally();
+
+  document.getElementById("skip-btn").addEventListener("click", () => showResults(null));
+  document.getElementById("q2-back-btn").addEventListener("click", showQ1);
+  document.getElementById("change-who").addEventListener("click", showSurvey);
+  document.getElementById("search").addEventListener("input", e => { state.search = e.target.value.toLowerCase(); renderGrid(); });
+  document.getElementById("geo-filter").addEventListener("change", e => { state.geo = e.target.value; renderGrid(); });
+  document.getElementById("clear-filters").addEventListener("click", clearFilters);
+}
+
+function renderQ1() {
+  const roll = document.getElementById("roll-q1");
+  roll.innerHTML = "";
+  Q1_OPTIONS.forEach(option => {
+    const btn = document.createElement("button");
+    btn.className = "roll-card";
+    btn.textContent = option;
+    btn.addEventListener("click", () => handleQ1Select(option));
+    roll.appendChild(btn);
+  });
+}
+
+function handleQ1Select(option) {
+  const branch = BRANCHES[option];
+  if (branch.direct) {
+    showResults(branch.audience);
+    return;
+  }
+  document.getElementById("q2-title").textContent = branch.q2title;
+  const roll = document.getElementById("roll-q2");
+  roll.innerHTML = "";
+  branch.q2.forEach(identity => {
+    const btn = document.createElement("button");
+    btn.className = "roll-card";
+    btn.textContent = identity;
+    btn.addEventListener("click", () => showResults(identity));
+    roll.appendChild(btn);
+  });
+  document.getElementById("q1-step").style.display = "none";
+  document.getElementById("q2-step").style.display = "block";
+}
+
+function showQ1() {
+  document.getElementById("q2-step").style.display = "none";
+  document.getElementById("q1-step").style.display = "block";
+}
+
+function renderFilterOptions() {
+  const catWrap = document.getElementById("cat-filters");
+  catWrap.innerHTML = "";
+  CATEGORY_OPTIONS.forEach(cat => {
+    const label = document.createElement("label");
+    label.className = "check-row";
+    label.innerHTML = `<input type="checkbox" value="${cat}"> <span>${cat}</span>`;
+    label.querySelector("input").addEventListener("change", e => {
+      e.target.checked ? state.categories.add(cat) : state.categories.delete(cat);
+      renderGrid();
+    });
+    catWrap.appendChild(label);
+  });
+
+  const audWrap = document.getElementById("aud-filters");
+  audWrap.innerHTML = "";
+  AUDIENCE_OPTIONS.forEach(aud => {
+    const label = document.createElement("label");
+    label.className = "check-row";
+    label.innerHTML = `<input type="checkbox" value="${aud}"> <span>${aud}</span>`;
+    label.querySelector("input").addEventListener("change", e => {
+      e.target.checked ? state.audiences.add(aud) : state.audiences.delete(aud);
+      syncAudienceCheckboxes();
+      renderGrid();
+    });
+    audWrap.appendChild(label);
+  });
+
+  const geoSelect = document.getElementById("geo-filter");
+  GEO_OPTIONS.forEach(geo => {
+    const opt = document.createElement("option");
+    opt.value = geo;
+    opt.textContent = geo;
+    geoSelect.appendChild(opt);
+  });
+}
+
+function syncAudienceCheckboxes() {
+  const boxes = document.querySelectorAll("#aud-filters input");
+  boxes.forEach(b => { b.checked = state.audiences.has(b.value); });
+}
+
+function showResults(identity) {
+  activeIdentity = identity;
+  document.getElementById("survey-view").style.display = "none";
+  document.getElementById("results-view").style.display = "block";
+  document.getElementById("who-label").textContent = identity ? identity.toLowerCase() : "everyone";
+
+  state.categories.clear();
+  state.audiences.clear();
+  state.search = "";
+  document.getElementById("search").value = "";
+  document.querySelectorAll("#cat-filters input").forEach(b => b.checked = false);
+  document.querySelectorAll("#aud-filters input").forEach(b => b.checked = false);
+
+  if (identity) {
+    state.audiences.add(identity);
+    document.querySelectorAll("#aud-filters input").forEach(b => { if (b.value === identity) b.checked = true; });
+  }
+
+  renderGrid();
+  window.scrollTo(0, 0);
+}
+
+function showSurvey() {
+  document.getElementById("results-view").style.display = "none";
+  document.getElementById("survey-view").style.display = "block";
+  showQ1();
+  window.scrollTo(0, 0);
+}
+
+function clearFilters() {
+  state.categories.clear();
+  state.audiences.clear();
+  state.geo = "";
+  state.search = "";
+  document.getElementById("search").value = "";
+  document.getElementById("geo-filter").value = "";
+  document.querySelectorAll("#cat-filters input, #aud-filters input").forEach(b => b.checked = false);
+  document.getElementById("who-label").textContent = "everyone";
+  renderGrid();
+}
+
+function updateHeaderTally() {
+  document.getElementById("header-tally").textContent = `${DATA.length} resources`;
+}
+
+function renderGrid() {
+  updateHeaderTally();
+  const grid = document.getElementById("grid");
+  const countLine = document.getElementById("count-line");
+  grid.innerHTML = "";
+
+  const filtered = DATA.filter(r => {
+    if (state.search) {
+      const hay = (r.name + " " + r.org + " " + r.description).toLowerCase();
+      if (!hay.includes(state.search)) return false;
+    }
+    if (state.categories.size > 0) {
+      const overlap = r.category.some(c => state.categories.has(c));
+      if (!overlap) return false;
+    }
+    if (state.audiences.size > 0) {
+      const overlap = r.audience.some(a => state.audiences.has(a)) || r.audience.includes("Broad-based");
+      if (!overlap) return false;
+    }
+    if (state.geo) {
+      if (r.geography !== state.geo) return false;
+    }
+    return true;
+  });
+
+  countLine.textContent = `Showing ${filtered.length} of ${DATA.length} resources`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><strong>No resources match yet</strong>Try clearing a filter or searching a different term.</div>`;
+    return;
+  }
+
+  filtered.forEach(r => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+
+    const geoLabel = r.specificGeography ? r.specificGeography : r.geography;
+
+    tile.innerHTML = `
+      <div class="tile-geo">${geoLabel}</div>
+      <div class="tile-name"><a href="${r.link}" target="_blank" rel="noopener">${r.name}</a></div>
+      <div class="tile-org">${r.org}</div>
+      <div class="tile-desc">${r.description}</div>
+      <div class="tile-tags">
+        ${r.category.map(c => `<span class="tag cat">${c}</span>`).join("")}
+        ${r.audience.map(a => `<span class="tag aud">${a}</span>`).join("")}
+      </div>
+    `;
+    grid.appendChild(tile);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
