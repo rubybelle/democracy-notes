@@ -525,7 +525,7 @@
     <div id="q1-step">
       <div class="survey-eyebrow">Before you dive in</div>
       <h1 class="survey-title">What part of the democracy world are you in?</h1>
-      <p class="survey-sub">Pick what fits best and we'll surface the resources most relevant to you first. You can always browse everything or change filters afterward.</p>
+      <p class="survey-sub">Pick what fits best to see resources most relevant to you first. You can always browse everything or change filters afterwardss. </p>
       <!-- This empty div gets filled with buttons by JavaScript
            (see renderQ1() below) — it's a container, not hardcoded
            buttons, so the options live in one place in the code
@@ -538,9 +538,9 @@
  
     <!-- QUESTION 2: hidden until a Q1 answer needs a follow-up -->
     <div id="q2-step" style="display:none;">
-      <div class="survey-eyebrow" id="q2-eyebrow">One more thing</div>
+      <div class="survey-eyebrow" id="q2-eyebrow">Before you dive in</div>
       <h1 class="survey-title" id="q2-title">Which best describes you?</h1>
-      <p class="survey-sub">This helps us narrow things down a little further.</p>
+      <p class="survey-sub">Let's narrow things down a little further.</p>
       <div class="roll" id="roll-q2"></div>
       <div class="skip-row">
         <button class="skip-btn" id="q2-back-btn">← Back</button>
@@ -819,7 +819,7 @@ const BRANCHES = {
   "Elections": {
     direct: false,
     q2title: "Which best describes you?",
-    q2: ["Election officials/ professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+    q2: ["Election officials/professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
   },
   "Movement": {
     direct: false,
