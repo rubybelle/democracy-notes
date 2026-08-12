@@ -8,7 +8,7 @@
   why it's a bit long — normally these would be three separate files, but
   keeping everything in one file makes it dead simple to host (just one
   file to upload) and easy to read top to bottom.
-
+ 
   The file has three big sections, in this order:
     1. <head>   — page setup: title, fonts, and all the CSS (the "style"
                   block). CSS controls colors, spacing, fonts, layout —
@@ -22,9 +22,9 @@
                   what to show on screen. HTML and CSS are static (they
                   don't "do" anything by themselves) — JavaScript is what
                   makes the page interactive.
-
+ 
   A few reading tips since you're new to this:
-    - Anything between <!-- and - - > (no spaces) (like this comment) is invisible to
+    - Anything between <!-- and --> (like this comment) is invisible to
       visitors. It's a note for humans reading the code.
     - Inside the <style> block, comments look like /* this */
     - Inside the <script> block, comments look like // this  (for a single
@@ -39,23 +39,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+ 
 <!-- This is the tab title / browser title, and also what shows up if
      someone bookmarks or Googles the page. -->
 <title>Democracy Notes Resource Bank</title>
-
+ 
 <!-- These two lines load the fonts used on the page (Crimson Pro for
      headings, Public Sans for small text like filters/tags) from Google
      Fonts, a free font hosting service. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+ 
 <!-- This loads a free code library called Papaparse. Its only job is to
      read a CSV file (like the kind Google Sheets exports) and turn it
      into data JavaScript can use. See the "CONNECTING GOOGLE SHEETS"
      comment further down for exactly how this gets used. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
+ 
 <style>
   /* ==========================================================
      COLOR PALETTE
@@ -81,12 +81,12 @@
     --line: #DEDFEE;        /* light borders/dividers throughout */
     --focus: #09116D;       /* outline color when tabbing via keyboard */
   }
-
+ 
   /* A quick reset: this makes width/height calculations include
      padding and border, which is what most people expect and avoids
      layout surprises. Applied to literally everything ("*"). */
   * { box-sizing: border-box; }
-
+ 
   body {
     margin: 0;
     background: var(--bg);
@@ -94,17 +94,17 @@
     font-family: 'Public Sans', sans-serif; /* default body font */
     -webkit-font-smoothing: antialiased;    /* smoother text on Mac/iOS */
   }
-
+ 
   a { color: inherit; } /* links don't turn blue by default — they
                             inherit whatever color their container has */
-
+ 
   button {
     font-family: inherit; /* buttons use the page font, not the
                               browser's default button font */
     cursor: pointer;      /* shows a "hand" cursor on hover, signaling
                               "this is clickable" */
   }
-
+ 
   /* When someone tabs through the page with a keyboard (instead of a
      mouse), this draws a visible outline so they can see what's
      focused. Good for accessibility — don't remove this. */
@@ -112,7 +112,7 @@
     outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
-
+ 
   /* .wrap centers content and caps its width so text/tiles don't
      stretch uncomfortably wide on big monitors. Used inside every
      section below. */
@@ -121,7 +121,7 @@
     margin: 0 auto;
     padding: 0 24px;
   }
-
+ 
   /* ---------- Header bar at the very top of the page ---------- */
   .masthead {
     border-bottom: 1px solid var(--line);
@@ -147,7 +147,7 @@
     color: var(--ink-soft);
     letter-spacing: 0.02em;
   }
-
+ 
   /* ---------- Survey screen (the "who are you" questions) ---------- */
   #survey-view { padding: 72px 0 96px; }
   .survey-eyebrow {
@@ -177,7 +177,7 @@
     line-height: 1.55;
     margin: 0 0 40px;
   }
-
+ 
   /* .roll is the grid of clickable option cards (Elections, Movement,
      Nonprofit, Funder, Healer — and later, the Q2 options). */
   .roll {
@@ -195,7 +195,7 @@
   @media (max-width: 460px) {
     .roll { grid-template-columns: 1fr; }
   }
-
+ 
   .roll-card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -232,7 +232,7 @@
     box-shadow: 0 4px 14px rgba(35,36,31,0.06);
   }
   .roll-card:hover::before { background: var(--navy); }
-
+ 
   .skip-row {
     margin-top: 28px;
     display: flex;
@@ -249,13 +249,13 @@
     padding: 4px 0;
   }
   .skip-btn:hover { color: var(--ink); }
-
+ 
   /* ---------- Results screen (tiles + filters) ---------- */
   /* display:none means this whole section starts out INVISIBLE.
      JavaScript switches it to "block" (visible) once someone
      finishes the survey — see showResults() further down. */
   #results-view { display: none; padding: 40px 0 100px; }
-
+ 
   .results-header {
     display: flex;
     justify-content: space-between;
@@ -284,7 +284,7 @@
     color: var(--ink-soft);
   }
   .change-who:hover { border-color: var(--navy); color: var(--navy); }
-
+ 
   /* ==========================================================
      FILTER BAR (dropdown-style filters)
      ----------------------------------------------------------
@@ -305,7 +305,7 @@
     gap: 10px;
     margin-bottom: 8px;
   }
-
+ 
   .search-input {
     flex: 1 1 200px; /* grow/shrink, but never narrower than 200px —
                          this is what lets it sit naturally in the
@@ -317,7 +317,7 @@
     font-family: inherit;
     background: #fff;
   }
-
+ 
   /* .filter-dd is the wrapper for ONE dropdown (e.g. all of
      "Category"). position:relative lets its panel (below) be
      positioned relative to this button instead of the whole page. */
@@ -346,8 +346,8 @@
     background: rgba(9,17,109,0.06);
     color: var(--navy);
   }
-  .dd-arrow { font-size: 10px; opacity: 1; }
-
+  .dd-arrow { font-size: 10px; opacity: 0.6; }
+ 
   /* The panel that drops down below each button. Hidden by
      default; JavaScript adds the "open" class to .filter-dd to
      reveal it (see the CSS rule right after this one). */
@@ -368,7 +368,7 @@
     z-index: 20; /* keeps the panel floating above the tiles below it */
   }
   .filter-dd.open .filter-dd-panel { display: block; }
-
+ 
   .check-row {
     display: flex;
     align-items: flex-start;
@@ -379,7 +379,7 @@
     cursor: pointer;
   }
   .check-row input { margin-top: 3px; accent-color: var(--navy); cursor: pointer; }
-
+ 
   .clear-filters {
     background: none;
     border: none;
@@ -390,14 +390,14 @@
     padding: 9px 4px;
     white-space: nowrap;
   }
-
+ 
   /* On narrow/mobile screens, let each dropdown panel stretch to
      the full available width instead of a fixed 230px, so it's
      easy to tap options with a thumb. */
   @media (max-width: 520px) {
     .filter-dd-panel { min-width: 0; width: calc(100vw - 48px); }
   }
-
+ 
   /* .grid is the responsive tile layout. auto-fill + minmax means:
      "fit as many 260px-minimum-wide columns as will comfortably fit,
      and stretch them evenly to fill the space" — so it reflows
@@ -409,7 +409,7 @@
     gap: 16px;
     align-content: start;
   }
-
+ 
   .tile {
     background: var(--card);
     border: 1px solid var(--line);
@@ -422,7 +422,7 @@
     transition: box-shadow 0.15s ease, transform 0.15s ease;
   }
   .tile:hover { box-shadow: 0 6px 20px rgba(35,36,31,0.07); transform: translateY(-1px); }
-
+ 
   /* Small pill badge in the top-right corner of each tile showing
      geography (e.g. "US" or "Detroit, MI"). */
   .tile-geo {
@@ -438,7 +438,7 @@
     border-radius: 20px;
     background: #fff;
   }
-
+ 
   .tile-name {
     font-family: 'Crimson Pro', serif;
     font-size: 18px;
@@ -449,7 +449,7 @@
   }
   .tile-name a { text-decoration: none; border-bottom: 1px solid var(--gold-deep); }
   .tile-name a:hover { border-bottom-color: var(--gold-deep); color: var(--gold-deep); }
-
+ 
   .tile-org {
     font-size: 12.5px;
     color: var(--ink-soft);
@@ -458,7 +458,7 @@
     letter-spacing: 0.03em;
     margin-top: -6px;
   }
-
+ 
   .tile-desc {
     font-size: 14px;
     line-height: 1.5;
@@ -466,7 +466,7 @@
     flex-grow: 1; /* pushes the tags below to the bottom of the tile,
                      even if descriptions are different lengths */
   }
-
+ 
   .tile-tags {
     display: flex;
     flex-wrap: wrap;
@@ -488,7 +488,7 @@
      than a solid block. */
   .tag.cat { background: rgba(9,17,109,0.08); color: var(--navy); }
   .tag.aud { background: rgba(201,151,0,0.16); color: var(--gold-deep); }
-
+ 
   .empty-state {
     grid-column: 1 / -1; /* spans the full grid width, even though
                              the grid normally has multiple columns */
@@ -498,7 +498,7 @@
     font-size: 15px;
   }
   .empty-state strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 6px; font-family: 'Crimson Pro', serif; }
-
+ 
   .count-line {
     font-size: 13px;
     color: var(--ink-soft);
@@ -507,7 +507,7 @@
 </style>
 </head>
 <body>
-
+ 
 <!-- ============================================================
      HEADER
      Shows the site name and a live count of total resources
@@ -515,11 +515,11 @@
 ============================================================ -->
 <header class="masthead">
   <div class="wrap">
-    <div class="brand">Democracy Notes Resilience Resources</span></div>
+    <div class="brand">Democracy Notes Resource Bank<span class="dot">.</span></div>
     <div class="tally" id="header-tally"></div>
   </div>
 </header>
-
+ 
 <!-- ============================================================
      SURVEY SECTION
      This holds BOTH survey questions. Only one is visible at a
@@ -530,7 +530,7 @@
 ============================================================ -->
 <section id="survey-view">
   <div class="wrap">
-
+ 
     <!-- QUESTION 1: shown first, always -->
     <div id="q1-step">
       <div class="survey-eyebrow">Before you dive in</div>
@@ -545,7 +545,7 @@
         <button class="skip-btn" id="skip-btn">Skip — just show me everything</button>
       </div>
     </div>
-
+ 
     <!-- QUESTION 2: hidden until a Q1 answer needs a follow-up -->
     <div id="q2-step" style="display:none;">
       <div class="survey-eyebrow" id="q2-eyebrow">One more thing</div>
@@ -556,10 +556,10 @@
         <button class="skip-btn" id="q2-back-btn">← Back</button>
       </div>
     </div>
-
+ 
   </div>
 </section>
-
+ 
 <!-- ============================================================
      RESULTS SECTION
      Starts hidden (see #results-view { display:none } in the CSS
@@ -578,7 +578,7 @@
       </div>
       <button class="change-who" id="change-who">Change who you are</button>
     </div>
-
+ 
     <!-- The filter bar: a search box plus three dropdown buttons
          (Category / Audience / Geography). Each dropdown container
          below starts EMPTY — JavaScript's buildDropdownFilter()
@@ -592,7 +592,7 @@
       <div class="filter-dd" id="geography-dd"></div>
       <button class="clear-filters" id="clear-filters">Clear all filters</button>
     </div>
-
+ 
     <div class="count-line" id="count-line"></div>
     <!-- The tile cards themselves get built and inserted here
          by JavaScript's renderGrid() function — there is no
@@ -600,7 +600,7 @@
     <div class="grid" id="grid"></div>
   </div>
 </section>
-
+ 
 <script>
 /* ============================================================================
    JAVASCRIPT — THE "BRAIN" OF THE PAGE
@@ -610,53 +610,57 @@
    HAPPENS when someone clicks something. Read it top to bottom — later
    functions often call earlier ones.
 ============================================================================ */
-
-
+ 
+ 
 /* ============================================================
    ⭐ CONNECTING GOOGLE SHEETS — READ THIS FIRST ⭐
    ------------------------------------------------------------
    Right now the site runs on the fake MOCK_DATA list below (a
    handful of made-up example resources), so you can see the
    whole thing working before your real spreadsheet is ready.
-
-   When your real data is ready, follow these steps to make the
-   site pull live from Google Sheets instead:
-
-   STEP 1 — In Google Sheets:
-     File → Share → Publish to web → choose the sheet/tab with
-     your resources → choose "Comma-separated values (.csv)" →
-     click Publish. Google will give you a URL. Copy it.
-
-   STEP 2 — Paste that URL as the value of LIVE_CSV_URL just
-     below (between the quote marks).
-
-   STEP 3 — Change USE_LIVE_DATA from false to true.
-
-   STEP 4 — Make sure your Google Sheet's column headers (the
-     very first row) are spelled EXACTLY like this, since the
-     code below matches them by name:
-       Resource name | Org name | Category | Audience |
-       Description | Geography | Specific geography | Link
-
-   STEP 5 — For any resource that belongs to more than one
-     category or audience, separate them with a comma INSIDE
-     that one cell, e.g. a Category cell containing:
-       Trainings, Fellowship
-
-   That's it — once USE_LIVE_DATA is true, every time someone
-   loads the page it will fetch your live sheet, so editing the
-   spreadsheet updates the website automatically (no re-coding,
-   no re-uploading this file). The actual fetching/parsing
-   happens in the loadLiveData() function, about a third of the
-   way down this script — Papaparse (loaded at the very top of
-   this file) is the library doing the heavy lifting of turning
-   the CSV text into usable data.
+ 
+   Your real "Resilience Scan" sheet is already published as a
+   CSV, and that URL is already sitting in LIVE_CSV_URL just
+   below — but USE_LIVE_DATA is deliberately still set to false,
+   because a handful of rows in that sheet are still incomplete
+   (missing a Category, Audience, blank rows, a few notes-to-self
+   with only a link typed in). Once those rows are cleaned up,
+   all you have to do is:
+ 
+   STEP 1 — Change USE_LIVE_DATA from false to true, just below.
+     That's it — nothing else needs to change.
+ 
+   From then on, every time someone loads the page it fetches
+   your live sheet, so editing the spreadsheet updates the
+   website automatically (no re-coding, no re-uploading this
+   file). The actual fetching/parsing happens in the
+   loadLiveData() function, about a third of the way down this
+   script — Papaparse (loaded at the very top of this file) is
+   the library doing the heavy lifting of turning the CSV text
+   into usable data.
+ 
+   If you ever need to re-publish the sheet (e.g. you moved it
+   to a new tab, or Google gives you a new link), repeat this:
+   File → Share → Publish to web → choose the sheet/tab → choose
+   "Comma-separated values (.csv)" → Publish → copy the new URL
+   into LIVE_CSV_URL below.
+ 
+   Also worth knowing: the column headers in your Google Sheet
+   need to keep matching these exact names, since the code below
+   looks them up by name:
+     ID | Link | Category | Name | Organization | Description |
+     Audience | Geographic scope | Specific Geography
+ 
+   And for any resource that belongs to more than one category
+   or audience, separate them with a comma INSIDE that one cell,
+   e.g. a Category cell containing:
+     Trainings, Fellowship
 ============================================================ */
-
-const USE_LIVE_DATA = false;  // ← flip to true once your sheet is ready
-const LIVE_CSV_URL = "";      // ← paste your published Google Sheets CSV link here
-
-
+ 
+const USE_LIVE_DATA = true;  // ← flip to true once your sheet is cleaned up
+const LIVE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYMzZEb_VUGstVc4qBHhzAsjohCjbSMBSafpqHeGeq-atBxhWbOkt33Buiw1l172B1CuBWET2p8HOw/pub?gid=0&single=true&output=csv";
+ 
+ 
 /* ------------------------------------------------------------
    MOCK_DATA — fake placeholder resources
    ------------------------------------------------------------
@@ -693,7 +697,7 @@ const MOCK_DATA = [
     name: "Election Official Safety Line",
     org: "Civic Shield Network",
     category: ["Organizational support", "Trauma-specific"],
-    audience: ["Election officials"],
+    audience: ["Election officials/ professionals"],
     description: "24/7 confidential support line for election administrators facing threats or harassment, with rapid-response security consultations.",
     geography: "US",
     specificGeography: "",
@@ -712,7 +716,7 @@ const MOCK_DATA = [
   {
     name: "Funders Learning Cohort",
     org: "Bridgeline Philanthropy Network",
-    category: ["Conveners and connecters", "Professional development"],
+    category: ["Conveners and connectors", "Professional development"],
     audience: ["Funders"],
     description: "A closed 6-month cohort for program officers to trade notes on trust-based grantmaking practices.",
     geography: "US",
@@ -752,7 +756,7 @@ const MOCK_DATA = [
   {
     name: "City Nonprofit Roundtable",
     org: "Detroit Civic Alliance",
-    category: ["Conveners and connecters", "Organizational support"],
+    category: ["Conveners and connectors", "Organizational support"],
     audience: ["Nonprofit executives", "Broad-based"],
     description: "Monthly in-person roundtable connecting nonprofit leaders across the city for peer troubleshooting and shared resources.",
     geography: "City-specific",
@@ -770,7 +774,7 @@ const MOCK_DATA = [
     link: "https://example.org/wellness-directory"
   }
 ];
-
+ 
 /* ------------------------------------------------------------
    TAXONOMY LISTS
    ------------------------------------------------------------
@@ -778,7 +782,7 @@ const MOCK_DATA = [
    rename an option here and it automatically shows up (or
    disappears) in the matching dropdown — you never have to
    touch the HTML above or the rendering code below.
-
+ 
    GEO_OPTIONS is the newest addition: it now drives its own
    "Geography" dropdown filter (checkbox-style, same as Category
    and Audience) — this is separate from the survey, which still
@@ -786,44 +790,46 @@ const MOCK_DATA = [
 ------------------------------------------------------------ */
 const CATEGORY_OPTIONS = [
   "Resource banks","Organizational support","Mental healthcare","Trauma-specific",
-  "Somatic/healing","Sabbatical/break","Conveners and connecters","Tactics/case studies",
+  "Somatic/healing","Sabbatical/break","Conveners and connectors","Tactics/case studies",
   "Fellowship","Trainings","Funding","Professional development"
 ];
-
+ 
 const AUDIENCE_OPTIONS = [
-  "Movement folks","Nonprofit executives","BIPOC folks","Election officials","Funders",
+  "Movement folks","Nonprofit executives","BIPOC folks","Election officials/ professionals","Funders",
   "Specific grantees","Broad-based","Other","Nonprofit staff","Nonprofit managers",
-  "Healers/mental health professionals","Leaders"
+  "Healers/mental health professionals","Leaders","Campaign staff"
 ];
-
-const GEO_OPTIONS = ["Global","US","State-specific","City-specific"];
-
+ 
+// "North America" and "Regional" were added here to match values
+// actually used in the real spreadsheet's "Geographic scope" column.
+const GEO_OPTIONS = ["Global","North America","US","Regional","State-specific","City-specific"];
+ 
 /* ------------------------------------------------------------
    SURVEY LOGIC (the branching questions)
    ------------------------------------------------------------
    Q1_OPTIONS are the five buttons on the first screen.
-
+ 
    BRANCHES describes what happens after each Q1 choice:
      - direct: true   → skip straight to filtered results
                          (used for Funder and Healer)
      - direct: false  → show a second question first, with its
                          own title (q2title) and its own list of
                          button options (q2)
-
+ 
    NONPROFIT_ROLE_OPTIONS is just a shared shortcut list (so
    "Nonprofit executives/staff/managers" isn't retyped three
    times below) — the "...NONPROFIT_ROLE_OPTIONS" syntax means
    "insert every item from that list here."
 ------------------------------------------------------------ */
 const Q1_OPTIONS = ["Elections", "Movement", "Nonprofit", "Funder", "Healer"];
-
+ 
 const NONPROFIT_ROLE_OPTIONS = ["Nonprofit executives", "Nonprofit staff", "Nonprofit managers"];
-
+ 
 const BRANCHES = {
   "Elections": {
     direct: false,
     q2title: "Which best describes you?",
-    q2: ["Election officials", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+    q2: ["Election officials/ professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
   },
   "Movement": {
     direct: false,
@@ -838,7 +844,7 @@ const BRANCHES = {
   "Funder": { direct: true, audience: "Funders" },
   "Healer": { direct: true, audience: "Healers/mental health professionals" }
 };
-
+ 
 /* ------------------------------------------------------------
    LIVE STATE
    ------------------------------------------------------------
@@ -859,7 +865,7 @@ const state = {
   audiences: new Set(),
   geographies: new Set()
 };
-
+ 
 /* ------------------------------------------------------------
    loadLiveData()
    ------------------------------------------------------------
@@ -873,7 +879,7 @@ const state = {
 ------------------------------------------------------------ */
 function loadLiveData() {
   if (!USE_LIVE_DATA || !LIVE_CSV_URL) return; // bail out early if not set up yet
-
+ 
   Papa.parse(LIVE_CSV_URL, {
     download: true,        // fetch the URL rather than parsing local text
     header: true,           // treat the first row as column names
@@ -883,15 +889,24 @@ function loadLiveData() {
       // spreadsheet row, keyed by column header. We reshape each
       // row into our own field names below.
       DATA = results.data.map(row => ({
-        name: row["Resource name"] || "",
-        org: row["Org name"] || "",
+        id: row["ID"] || "",
+        name: row["Name"] || "",
+        org: row["Organization"] || "",
         category: (row["Category"] || "").split(",").map(s => s.trim()).filter(Boolean),
         audience: (row["Audience"] || "").split(",").map(s => s.trim()).filter(Boolean),
         description: row["Description"] || "",
-        geography: row["Geography"] || "",
-        specificGeography: row["Specific geography"] || "",
+        geography: row["Geographic scope"] || "",
+        specificGeography: row["Specific Geography"] || "",
         link: row["Link"] || "#"
-      }));
+      })).filter(r => r.name); // drops rows that are entirely blank
+                                 // (no Name at all). Rows that DO have
+                                 // something in Name but are missing
+                                 // other fields (Category, Audience,
+                                 // etc.) will still show up, looking
+                                 // sparse — that's intentional, so you
+                                 // can spot and finish them on the
+                                 // live site rather than have them
+                                 // silently vanish.
       renderGrid(); // redraw the tiles now that real data has arrived
     },
     error: function(err) {
@@ -902,7 +917,7 @@ function loadLiveData() {
     }
   });
 }
-
+ 
 /* ------------------------------------------------------------
    init()
    ------------------------------------------------------------
@@ -921,13 +936,13 @@ function init() {
   buildDropdownFilter("geography-dd", "geography", "Geography", GEO_OPTIONS, state.geographies);
   loadLiveData();
   updateHeaderTally();
-
+ 
   document.getElementById("skip-btn").addEventListener("click", () => showResults(null));
   document.getElementById("q2-back-btn").addEventListener("click", showQ1);
   document.getElementById("change-who").addEventListener("click", showSurvey);
   document.getElementById("search").addEventListener("input", e => { state.search = e.target.value.toLowerCase(); renderGrid(); });
   document.getElementById("clear-filters").addEventListener("click", clearFilters);
-
+ 
   // Clicking ANYWHERE on the page closes any open dropdown panel,
   // unless the click was inside that dropdown itself. This is the
   // standard "click outside to close" behavior you see on most
@@ -938,7 +953,7 @@ function init() {
     document.querySelectorAll(".filter-dd.open").forEach(dd => dd.classList.remove("open"));
   });
 }
-
+ 
 /* Builds the five Q1 buttons (Elections/Movement/Nonprofit/Funder/
    Healer) inside the empty <div id="roll-q1"> from the HTML above,
    one button per entry in Q1_OPTIONS. */
@@ -953,7 +968,7 @@ function renderQ1() {
     roll.appendChild(btn);
   });
 }
-
+ 
 /* Runs when someone clicks a Q1 button. Looks up that option's
    entry in BRANCHES (defined above) and either:
      - jumps straight to results (Funder, Healer), or
@@ -978,13 +993,13 @@ function handleQ1Select(option) {
   document.getElementById("q1-step").style.display = "none";
   document.getElementById("q2-step").style.display = "block";
 }
-
+ 
 /* The "← Back" button on Q2 calls this to return to Q1. */
 function showQ1() {
   document.getElementById("q2-step").style.display = "none";
   document.getElementById("q1-step").style.display = "block";
 }
-
+ 
 /* ------------------------------------------------------------
    buildDropdownFilter()
    ------------------------------------------------------------
@@ -992,7 +1007,7 @@ function showQ1() {
    Audience, Geography) — rather than writing near-identical code
    three times, we write it once and call it three times (see
    init() above) with different options/labels/state plugged in.
-
+ 
    containerId — the empty <div class="filter-dd" id="..."> in the
                  HTML this should fill in
    key         — a short internal name, used to build element IDs
@@ -1004,12 +1019,12 @@ function showQ1() {
 ------------------------------------------------------------ */
 function buildDropdownFilter(containerId, key, label, options, stateSet) {
   const container = document.getElementById(containerId);
-
+ 
   container.innerHTML = `
     <button type="button" class="filter-dd-btn" id="${key}-btn">${label} <span class="dd-arrow">▾</span></button>
     <div class="filter-dd-panel" id="${key}-panel"></div>
   `;
-
+ 
   const panel = document.getElementById(`${key}-panel`);
   options.forEach(opt => {
     const row = document.createElement("label");
@@ -1022,7 +1037,7 @@ function buildDropdownFilter(containerId, key, label, options, stateSet) {
     });
     panel.appendChild(row);
   });
-
+ 
   // Clicking the button toggles ONLY this dropdown open/closed,
   // and closes any other dropdown that happened to be open — so
   // you never see two panels stacked on top of each other.
@@ -1035,7 +1050,7 @@ function buildDropdownFilter(containerId, key, label, options, stateSet) {
     if (!isOpen) container.classList.add("open");
   });
 }
-
+ 
 /* Updates a dropdown button's label to show how many options are
    currently checked inside it, e.g. "Category · 2" — and adds the
    "active" style so it's visually obvious which filters are on
@@ -1048,7 +1063,7 @@ function updateDropdownLabel(key, label, stateSet) {
     : `${label} <span class="dd-arrow">▾</span>`;
   btn.classList.toggle("active", count > 0);
 }
-
+ 
 /* Makes sure a dropdown's checkboxes visually match "state" —
    used after the survey pre-selects an audience, so the checkbox
    for e.g. "Movement folks" appears checked even though you never
@@ -1058,7 +1073,7 @@ function syncCheckboxes(key, stateSet) {
     b.checked = stateSet.has(b.value);
   });
 }
-
+ 
 /* Switches from the survey screen to the results screen, sets the
    "Resources for ___" heading, resets any old filters, and — if
    an identity was picked (as opposed to "Skip") — pre-checks that
@@ -1068,7 +1083,7 @@ function showResults(identity) {
   document.getElementById("survey-view").style.display = "none";
   document.getElementById("results-view").style.display = "block";
   document.getElementById("who-label").textContent = identity ? identity.toLowerCase() : "everyone";
-
+ 
   state.categories.clear();
   state.audiences.clear();
   state.search = "";
@@ -1077,17 +1092,17 @@ function showResults(identity) {
   updateDropdownLabel("category", "Category", state.categories);
   syncCheckboxes("audience", state.audiences);
   updateDropdownLabel("audience", "Audience", state.audiences);
-
+ 
   if (identity) {
     state.audiences.add(identity);
     syncCheckboxes("audience", state.audiences);
     updateDropdownLabel("audience", "Audience", state.audiences);
   }
-
+ 
   renderGrid();
   window.scrollTo(0, 0);
 }
-
+ 
 /* "Change who you are" button — goes back to the survey, resetting
    all the way to Q1 (not wherever they left off in Q2). */
 function showSurvey() {
@@ -1096,7 +1111,7 @@ function showSurvey() {
   showQ1();
   window.scrollTo(0, 0);
 }
-
+ 
 /* "Clear all filters" button — wipes every filter back to empty
    and shows the full unfiltered list again. */
 function clearFilters() {
@@ -1114,14 +1129,14 @@ function clearFilters() {
   document.getElementById("who-label").textContent = "everyone";
   renderGrid();
 }
-
+ 
 /* Updates the small "X resources" count in the top-right of the
    header to match however many total resources are currently
    loaded (mock or live). */
 function updateHeaderTally() {
   document.getElementById("header-tally").textContent = `${DATA.length} resources`;
 }
-
+ 
 /* ------------------------------------------------------------
    renderGrid() — the most important function on the page
    ------------------------------------------------------------
@@ -1139,7 +1154,7 @@ function renderGrid() {
   const grid = document.getElementById("grid");
   const countLine = document.getElementById("count-line");
   grid.innerHTML = "";
-
+ 
   const filtered = DATA.filter(r => {
     // Search: checks name, org, and description all at once.
     if (state.search) {
@@ -1167,23 +1182,23 @@ function renderGrid() {
     }
     return true; // resource passed every active filter check above
   });
-
+ 
   countLine.textContent = `Showing ${filtered.length} of ${DATA.length} resources`;
-
+ 
   if (filtered.length === 0) {
     grid.innerHTML = `<div class="empty-state"><strong>No resources match yet</strong>Try clearing a filter or searching a different term.</div>`;
     return;
   }
-
+ 
   filtered.forEach(r => {
     const tile = document.createElement("div");
     tile.className = "tile";
-
+ 
     // Prefer the more specific geography (e.g. "Detroit, MI") if
     // one was given; otherwise fall back to the broad category
     // (e.g. "US").
     const geoLabel = r.specificGeography ? r.specificGeography : r.geography;
-
+ 
     // Template literals (the backtick-quoted string below) let us
     // build a chunk of HTML with variables plugged in via ${...}.
     // This is the equivalent of paste0() in R, but for HTML text.
@@ -1200,7 +1215,7 @@ function renderGrid() {
     grid.appendChild(tile);
   });
 }
-
+ 
 /* This single line is what actually starts everything — without
    it, none of the functions above would ever run. It's placed at
    the very end of the script so every function it needs has
