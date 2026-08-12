@@ -416,9 +416,7 @@
   /* Small pill badge in the top-right corner of each tile showing
      geography (e.g. "US" or "Detroit, MI"). */
   .tile-geo {
-    position: absolute;
-    top: 14px;
-    right: 14px;
+    align-self: flex-start;
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -434,8 +432,6 @@
     font-size: 18px;
     font-weight: 600;
     line-height: 1.25;
-    padding-right: 70px; /* leaves room so the geo badge above never
-                             overlaps a long resource name */
   }
   .tile-name a { text-decoration: none; border-bottom: 1px solid var(--gold-deep); }
   .tile-name a:hover { border-bottom-color: var(--gold-deep); color: var(--gold-deep); }
