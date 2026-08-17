@@ -925,6 +925,7 @@ function loadLiveData() {
    how plain HTML buttons become interactive.
 ------------------------------------------------------------ */
 function init() {
+    history.replaceState({ page: "survey" }, "");
   renderQ1();
   buildDropdownFilter("category-dd", "category", "Category", CATEGORY_OPTIONS, state.categories);
   buildDropdownFilter("audience-dd", "audience", "Audience", AUDIENCE_OPTIONS, state.audiences);
@@ -938,6 +939,13 @@ function init() {
   document.getElementById("change-who").addEventListener("click", showSurvey);
   document.getElementById("search").addEventListener("input", e => { state.search = e.target.value.toLowerCase(); renderGrid(); });
   document.getElementById("clear-filters").addEventListener("click", clearFilters);
+  window.addEventListener("popstate", () => {
+    document.getElementById("results-view").style.display = "none";
+    document.getElementById("survey-view").style.display = "block";
+    showQ1();
+    window.scrollTo(0, 0);
+  });
+
  
   // Clicking ANYWHERE on the page closes any open dropdown panel,
   // unless the click was inside that dropdown itself. This is the
@@ -1085,6 +1093,7 @@ function syncCheckboxes(key, stateSet) {
    an identity was picked (as opposed to "Skip") — pre-checks that
    one audience checkbox so the grid opens already filtered. */
 function showResults(identity, labelText) {
+  history.pushState({ page: "results" }, "");
   activeIdentity = identity;
   document.getElementById("survey-view").style.display = "none";
   document.getElementById("results-view").style.display = "block";
