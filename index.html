@@ -819,6 +819,7 @@ function init() {
   loadLiveData();
   updateHeaderTally();
  
+  
   document.getElementById("skip-btn").addEventListener("click", () => showResults(null));
   document.getElementById("q2-back-btn").addEventListener("click", showQ1);
   document.getElementById("change-who").addEventListener("click", showSurvey);
@@ -833,11 +834,9 @@ function init() {
   // immediately re-closing the one it just opened.
   document.addEventListener("click", () => {
     document.querySelectorAll(".filter-dd.open").forEach(dd => dd.classList.remove("open"));
-
-    
-  }); 
-      //adding this and it should help make clicking the title go back to the homepage
-  document.getElementById("home-link").addEventListener("click", () => { clearFilters(); showSurvey(); });
+  });
+        //adding this and it should help make clicking the title go back to the homepage
+  document.getElementById("home-link").addEventListener("click", () => { clearFilters(); showSurvey(); })
 }
  
 /* Builds the five Q1 buttons (Elections/Movement/Nonprofit/Funder/
