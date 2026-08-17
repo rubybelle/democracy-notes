@@ -649,120 +649,6 @@ const LIVE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYMzZEb_V
  
  
 /* ------------------------------------------------------------
-   MOCK_DATA — fake placeholder resources
-   ------------------------------------------------------------
-   This is a plain JavaScript list ("array") of objects. Each
-   object (the stuff between { and }) is one resource, with the
-   same fields you'll eventually pull from Google Sheets. This
-   only gets used while USE_LIVE_DATA is false, above — feel
-   free to edit, add, or delete entries here directly if you
-   want to test with different examples before your sheet is
-   ready.
------------------------------------------------------------- */
-const MOCK_DATA = [
-  {
-    name: "Movement Rest Fund",
-    org: "The Sabbatical Project",
-    category: ["Sabbatical/break", "Funding"],
-    audience: ["Movement folks", "Leaders"],
-    description: "Grants covering 6–12 weeks of paid leave for organizers and movement leaders showing signs of burnout, plus a re-entry coaching call.",
-    geography: "US",
-    specificGeography: "",
-    link: "https://example.org/movement-rest-fund"
-  },
-  {
-    name: "Somatic Support Circles",
-    org: "Rooted Body Collective",
-    category: ["Somatic/healing", "Mental healthcare"],
-    audience: ["BIPOC folks", "Healers/mental health professionals"],
-    description: "Free monthly virtual healing circles blending somatic practice and peer support, facilitated by BIPOC-identified practitioners.",
-    geography: "Global",
-    specificGeography: "",
-    link: "https://example.org/somatic-circles"
-  },
-  {
-    name: "Election Official Safety Line",
-    org: "Civic Shield Network",
-    category: ["Organizational support", "Trauma-specific"],
-    audience: ["Election officials/ professionals"],
-    description: "24/7 confidential support line for election administrators facing threats or harassment, with rapid-response security consultations.",
-    geography: "US",
-    specificGeography: "",
-    link: "https://example.org/civic-shield"
-  },
-  {
-    name: "Nonprofit Ops Toolkit",
-    org: "Sturdy Roots Consulting",
-    category: ["Resource banks", "Organizational support", "Tactics/case studies"],
-    audience: ["Nonprofit executives", "Nonprofit managers"],
-    description: "Templates and case studies for HR policy, budgeting, and succession planning drawn from 40+ small nonprofits.",
-    geography: "US",
-    specificGeography: "",
-    link: "https://example.org/ops-toolkit"
-  },
-  {
-    name: "Funders Learning Cohort",
-    org: "Bridgeline Philanthropy Network",
-    category: ["Conveners and connectors", "Professional development"],
-    audience: ["Funders"],
-    description: "A closed 6-month cohort for program officers to trade notes on trust-based grantmaking practices.",
-    geography: "US",
-    specificGeography: "",
-    link: "https://example.org/funders-cohort"
-  },
-  {
-    name: "Frontline Fellowship",
-    org: "Vanguard Leadership Institute",
-    category: ["Fellowship", "Trainings", "Professional development"],
-    audience: ["Movement folks", "Nonprofit staff"],
-    description: "A paid 9-month fellowship combining leadership training with a stipend, built for staff five or more years into movement work.",
-    geography: "Global",
-    specificGeography: "",
-    link: "https://example.org/frontline-fellowship"
-  },
-  {
-    name: "Trauma-Informed Facilitation Guide",
-    org: "Steady Ground Institute",
-    category: ["Trauma-specific", "Tactics/case studies", "Trainings"],
-    audience: ["Healers/mental health professionals", "Leaders"],
-    description: "A practical field guide for running high-stakes meetings without re-traumatizing participants, with sample scripts.",
-    geography: "Global",
-    specificGeography: "",
-    link: "https://example.org/facilitation-guide"
-  },
-  {
-    name: "Grantee Wellbeing Stipends",
-    org: "Open Field Foundation",
-    category: ["Funding", "Mental healthcare"],
-    audience: ["Specific grantees"],
-    description: "Direct $2,000 wellbeing stipends for current grantee organizations' staff, no application required beyond a short form.",
-    geography: "State-specific",
-    specificGeography: "California",
-    link: "https://example.org/grantee-stipends"
-  },
-  {
-    name: "City Nonprofit Roundtable",
-    org: "Detroit Civic Alliance",
-    category: ["Conveners and connectors", "Organizational support"],
-    audience: ["Nonprofit executives", "Broad-based"],
-    description: "Monthly in-person roundtable connecting nonprofit leaders across the city for peer troubleshooting and shared resources.",
-    geography: "City-specific",
-    specificGeography: "Detroit, MI",
-    link: "https://example.org/detroit-roundtable"
-  },
-  {
-    name: "General Wellness Directory",
-    org: "Common Good Resource Hub",
-    category: ["Resource banks", "Mental healthcare"],
-    audience: ["Broad-based", "Other"],
-    description: "A searchable, general-purpose directory of low-cost mental health providers accepting nonprofit-worker referrals.",
-    geography: "US",
-    specificGeography: "",
-    link: "https://example.org/wellness-directory"
-  }
-];
- 
-/* ------------------------------------------------------------
    TAXONOMY LISTS
    ------------------------------------------------------------
    These lists power the three filter dropdowns. Add/remove/
@@ -783,7 +669,7 @@ const CATEGORY_OPTIONS = [
  
 const AUDIENCE_OPTIONS = [
   "Movement folks","Nonprofit executives","BIPOC folks","Election officials/ professionals","Funders",
-  "Specific grantees","Broad-based","Other","Nonprofit staff","Nonprofit managers",
+  "Specific grantees","Everyone","Other","Nonprofit staff","Nonprofit managers",
   "Healers/mental health professionals","Leaders","Campaign staff"
 ];
  
@@ -1175,11 +1061,11 @@ function renderGrid() {
       const overlap = r.category.some(c => state.categories.has(c));
       if (!overlap) return false;
     }
-    // Audience: same idea, but resources tagged "Broad-based"
+    // Audience: same idea, but resources tagged "Everyone"
     // always pass through regardless of which audience is picked,
     // since they're meant for everyone.
     if (state.audiences.size > 0) {
-      const overlap = r.audience.some(a => state.audiences.has(a)) || r.audience.includes("Broad-based");
+      const overlap = r.audience.some(a => state.audiences.has(a)) || r.audience.includes("Everyone");
       if (!overlap) return false;
     }
     // Geography: if any geography checkboxes are checked, the
