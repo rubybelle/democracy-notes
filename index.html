@@ -129,9 +129,10 @@
     font-weight: 600;
     font-size: 22px;
     letter-spacing: -0.01em;
+    background: none;
+    border: none;
+    padding: 0;
   }
-  .brand .dot { color: var(--gold-deep); } /* the small dot after
-                                               the brand name */
   .tally {
     font-size: 13px;
     color: var(--ink-soft);
@@ -501,8 +502,7 @@
 ============================================================ -->
 <header class="masthead">
   <div class="wrap">
-    <div class="brand">Democracy Notes Resource Bank</div>
-    <div class="tally" id="header-tally"></div>
+<button type="button" class="brand" id="home-link">Democracy Notes Resource Bank<span class="dot">.</span></button>    <div class="tally" id="header-tally"></div>
   </div>
 </header>
  
@@ -540,6 +540,7 @@
       <div class="roll" id="roll-q2"></div>
       <div class="skip-row">
         <button class="skip-btn" id="q2-back-btn">← Back</button>
+        <button class="skip-btn" id="q2-skip-btn" style="display:none;"></button>
       </div>
     </div>
  
@@ -816,19 +817,28 @@ const BRANCHES = {
     direct: false,
     q2title: "Which best describes you?",
     q2: ["Election officials/professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+    skipLabel: "Skip and show me all resources for the election space",
+    skipWho: "elections"
+
   },
+  
   "Movement": {
     direct: false,
     q2title: "Which best describes you?",
     q2: ["Movement folks", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+        skipLabel: "Skip and show me all resources for the movement space",
+    skipWho: "movement"
+
   },
   "Nonprofit": {
     direct: false,
     q2title: "Which best describes your role?",
-    q2: [...NONPROFIT_ROLE_OPTIONS, "Leaders"]
-  },
+    q2: [...NONPROFIT_ROLE_OPTIONS, "Leaders"],
+    skipLabel: "Skip and show me all resources for nonprofits",
+    skipWho: "nonprofits"
+  },  
   "Funder": { direct: true, audience: "Funders" },
-  "Healer": { direct: true, audience: "Healers/mental health professionals" }
+  "Healer and/or mental health professional": { direct: true, audience: "Healers/mental health professionals" }
 };
  
 /* ------------------------------------------------------------
@@ -937,7 +947,11 @@ function init() {
   // immediately re-closing the one it just opened.
   document.addEventListener("click", () => {
     document.querySelectorAll(".filter-dd.open").forEach(dd => dd.classList.remove("open"));
-  });
+
+    
+  }); 
+      //adding this and it should help make clicking the title go back to the homepage
+  document.getElementById("home-link").addEventListener("click", () => { clearFilters(); showSurvey(); });
 }
  
 /* Builds the five Q1 buttons (Elections/Movement/Nonprofit/Funder/
@@ -976,6 +990,14 @@ function handleQ1Select(option) {
     btn.addEventListener("click", () => showResults(identity));
     roll.appendChild(btn);
   });
+    const skipBtn = document.getElementById("q2-skip-btn");
+  if (branch.skipLabel) {
+    skipBtn.textContent = branch.skipLabel;
+    skipBtn.style.display = "inline";
+    skipBtn.onclick = () => showResults(branch.q2, branch.skipWho);
+  } else {
+    skipBtn.style.display = "none";
+  }
   document.getElementById("q1-step").style.display = "none";
   document.getElementById("q2-step").style.display = "block";
 }
@@ -1064,30 +1086,30 @@ function syncCheckboxes(key, stateSet) {
    "Resources for ___" heading, resets any old filters, and — if
    an identity was picked (as opposed to "Skip") — pre-checks that
    one audience checkbox so the grid opens already filtered. */
-function showResults(identity) {
+function showResults(identity, labelText) {
   activeIdentity = identity;
   document.getElementById("survey-view").style.display = "none";
   document.getElementById("results-view").style.display = "block";
-  document.getElementById("who-label").textContent = identity ? identity.toLowerCase() : "everyone";
- 
+
+  const identities = Array.isArray(identity) ? identity : (identity ? [identity] : []);
+  document.getElementById("who-label").textContent = labelText
+    ? labelText
+    : (identities.length ? identities[0].toLowerCase() : "everyone");
+
   state.categories.clear();
   state.audiences.clear();
   state.search = "";
   document.getElementById("search").value = "";
   syncCheckboxes("category", state.categories);
   updateDropdownLabel("category", "Category", state.categories);
+
+  identities.forEach(id => state.audiences.add(id));
   syncCheckboxes("audience", state.audiences);
   updateDropdownLabel("audience", "Audience", state.audiences);
- 
-  if (identity) {
-    state.audiences.add(identity);
-    syncCheckboxes("audience", state.audiences);
-    updateDropdownLabel("audience", "Audience", state.audiences);
-  }
- 
+
   renderGrid();
   window.scrollTo(0, 0);
-}
+}}
  
 /* "Change who you are" button — goes back to the survey, resetting
    all the way to Q1 (not wherever they left off in Q2). */
@@ -1189,7 +1211,7 @@ function renderGrid() {
     // build a chunk of HTML with variables plugged in via ${...}.
     // This is the equivalent of paste0() in R, but for HTML text.
     tile.innerHTML = `
-      <div class="tile-geo">${geoLabel}</div>
+      ${geoLabel ? `<div class="tile-geo">${geoLabel}</div>` : ""}
       <div class="tile-name"><a href="${r.link}" target="_blank" rel="noopener">${r.name}</a></div>
       <div class="tile-org">${r.org}</div>
       <div class="tile-desc">${r.description}</div>
