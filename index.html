@@ -808,7 +808,7 @@ const GEO_OPTIONS = ["Global","North America","US","Regional","State-specific","
    times below) — the "...NONPROFIT_ROLE_OPTIONS" syntax means
    "insert every item from that list here."
 ------------------------------------------------------------ */
-const Q1_OPTIONS = ["Elections", "Movement", "Nonprofit", "Funder", "Healer"];
+const Q1_OPTIONS = ["Elections", "Movement", "Nonprofit", "Funder", "Healer and/or mental health professional"];
  
 const NONPROFIT_ROLE_OPTIONS = ["Nonprofit executives", "Nonprofit staff", "Nonprofit managers"];
  
@@ -816,7 +816,7 @@ const BRANCHES = {
   "Elections": {
     direct: false,
     q2title: "Which best describes you?",
-    q2: ["Election officials/professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+    q2: ["Election officials/professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"],
     skipLabel: "Skip and show me all resources for the election space",
     skipWho: "elections"
 
@@ -825,7 +825,7 @@ const BRANCHES = {
   "Movement": {
     direct: false,
     q2title: "Which best describes you?",
-    q2: ["Movement folks", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"]
+    q2: ["Movement folks", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"],
         skipLabel: "Skip and show me all resources for the movement space",
     skipWho: "movement"
 
@@ -1109,7 +1109,7 @@ function showResults(identity, labelText) {
 
   renderGrid();
   window.scrollTo(0, 0);
-}}
+}
  
 /* "Change who you are" button — goes back to the survey, resetting
    all the way to Q1 (not wherever they left off in Q2). */
