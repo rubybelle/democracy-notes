@@ -556,16 +556,9 @@
 ============================================================ -->
 <section id="results-view">
   <div class="wrap">
-    <div class="results-header">
-      <div>
-        <!-- "you" here is just a placeholder — JavaScript replaces
-             the text inside #who-label with whatever the visitor
-             picked, e.g. "movement folks". -->
-        <h2 class="results-title">Resources for <span class="who" id="who-label">you</span></h2>
-      </div>
-      <button class="change-who" id="change-who">Change who you are</button>
-    </div>
- 
+<div class="results-header">
+  <button class="change-who" id="change-who">Change who you are</button>
+</div> 
     <!-- The filter bar: a search box plus three dropdown buttons
          (Category / Audience / Geography). Each dropdown container
          below starts EMPTY — JavaScript's buildDropdownFilter()
@@ -662,7 +655,7 @@ const MOCK_DATA = [
   {
     name: "Movement Rest Fund",
     org: "The Sabbatical Project",
-    category: ["Sabbatical/break", "Funding"],
+    category: ["Sabbaticals", "Funding"],
     audience: ["Movement folks", "Leaders"],
     description: "Grants covering 6–12 weeks of paid leave for organizers and movement leaders showing signs of burnout, plus a re-entry coaching call.",
     geography: "US",
@@ -672,7 +665,7 @@ const MOCK_DATA = [
   {
     name: "Somatic Support Circles",
     org: "Rooted Body Collective",
-    category: ["Somatic/healing", "Mental healthcare"],
+    category: ["Somatic and healing", "Mental healthcare"],
     audience: ["BIPOC folks", "Healers/mental health professionals"],
     description: "Free monthly virtual healing circles blending somatic practice and peer support, facilitated by BIPOC-identified practitioners.",
     geography: "Global",
@@ -692,7 +685,7 @@ const MOCK_DATA = [
   {
     name: "Nonprofit Ops Toolkit",
     org: "Sturdy Roots Consulting",
-    category: ["Resource banks", "Organizational support", "Tactics/case studies"],
+    category: ["Resource banks", "Organizational support", "Tactics and case studies"],
     audience: ["Nonprofit executives", "Nonprofit managers"],
     description: "Templates and case studies for HR policy, budgeting, and succession planning drawn from 40+ small nonprofits.",
     geography: "US",
@@ -722,7 +715,7 @@ const MOCK_DATA = [
   {
     name: "Trauma-Informed Facilitation Guide",
     org: "Steady Ground Institute",
-    category: ["Trauma-specific", "Tactics/case studies", "Trainings"],
+    category: ["Trauma-specific", "Tactics and case studies", "Trainings"],
     audience: ["Healers/mental health professionals", "Leaders"],
     description: "A practical field guide for running high-stakes meetings without re-traumatizing participants, with sample scripts.",
     geography: "Global",
@@ -776,7 +769,7 @@ const MOCK_DATA = [
 ------------------------------------------------------------ */
 const CATEGORY_OPTIONS = [
   "Resource banks","Organizational support","Mental healthcare","Trauma-specific",
-  "Somatic/healing","Sabbatical/break","Conveners and connectors","Tactics/case studies",
+  "Somatic and healing","Sabbaticals","Conveners and connectors","Tactics and case studies",
   "Fellowship","Trainings","Funding","Professional development"
 ];
  
@@ -1099,9 +1092,6 @@ function showResults(identity, labelText) {
   document.getElementById("results-view").style.display = "block";
 
   const identities = Array.isArray(identity) ? identity : (identity ? [identity] : []);
-  document.getElementById("who-label").textContent = labelText
-    ? labelText
-    : (identities.length ? identities[0].toLowerCase() : "everyone");
 
   state.categories.clear();
   state.audiences.clear();
@@ -1141,10 +1131,8 @@ function clearFilters() {
   updateDropdownLabel("audience", "Audience", state.audiences);
   syncCheckboxes("geography", state.geographies);
   updateDropdownLabel("geography", "Geography", state.geographies);
-  document.getElementById("who-label").textContent = "everyone";
   renderGrid();
-}
- 
+} 
 /* Updates the small "X resources" count in the top-right of the
    header to match however many total resources are currently
    loaded (mock or live). */
@@ -1186,8 +1174,7 @@ function renderGrid() {
     // always pass through regardless of which audience is picked,
     // since they're meant for everyone.
     if (state.audiences.size > 0) {
-      const overlap = r.audience.some(a => state.audiences.has(a)) || r.audience.includes("Everyone");
-      if (!overlap) return false;
+    const overlap = r.audience.some(a => state.audiences.has(a)) || (r.audience.includes("Everyone") && !state.audiences.has("Funders"));      if (!overlap) return false;
     }
     // Geography: if any geography checkboxes are checked, the
     // resource's broad geography (Global/US/State-specific/
