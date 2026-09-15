@@ -771,6 +771,7 @@ const BRANCHES = {
 ------------------------------------------------------------ */
 let DATA = [];
 let dataLoaded = false;
+let dataLoadFailed = false;
 let activeIdentity = null;
   const state = {
   search: "",
@@ -792,7 +793,17 @@ let activeIdentity = null;
 ------------------------------------------------------------ */
 function loadLiveData() {
   if (!USE_LIVE_DATA || !LIVE_CSV_URL) { dataLoaded = true; return; } // bail out early if not set up yet
-  
+
+  if (typeof Papa === "undefined") {
+    // Papaparse itself never loaded — likely blocked by a firewall,
+    // ad-blocker, or offline network. There's no way to fetch/parse
+    // the sheet without it, so fail gracefully instead of crashing.
+    dataLoaded = true;
+    dataLoadFailed = true;
+    renderGrid();
+    return;
+  }
+
   Papa.parse(LIVE_CSV_URL, {
     download: true,        // fetch the URL rather than parsing local text
     header: true,           // treat the first row as column names
@@ -823,13 +834,16 @@ function loadLiveData() {
       dataLoaded = true;
       renderGrid(); // redraw the tiles now that real data has arrived
     },
-    error: function(err) {
-      // If the fetch fails (wrong URL, sheet not published, etc.)
-      // this logs a message to the browser console instead of
-      // breaking the page.
+      error: function(err) {
+      // If the fetch fails (wrong URL, sheet not published, blocked
+      // network, etc.) this logs a message to the console instead
+      // of breaking the page, and flags it so the user sees an
+      // honest "couldn't load" message rather than "nothing here."
       console.error("Failed to load live sheet data.", err);
       dataLoaded = true;
+      dataLoadFailed = true;
       renderGrid();
+    }
     }
   });
 }
@@ -1146,10 +1160,16 @@ function safeLink(url) {
  
   countLine.textContent = `Showing ${filtered.length} of ${DATA.length} resources`;
  
-  if (filtered.length === 0) {
-    grid.innerHTML = dataLoaded
-      ? `<div class="empty-state"><strong>No resources match yet</strong>Try clearing a filter or searching a different term.</div>`
-      : `<div class="empty-state"><strong>Loading resources…</strong>Just a moment.</div>`;
+    if (filtered.length === 0) {
+    let message;
+    if (!dataLoaded) {
+      message = `<div class="empty-state"><strong>Loading resources…</strong>Just a moment.</div>`;
+    } else if (dataLoadFailed) {
+      message = `<div class="empty-state"><strong>We're having trouble loading resources right now</strong>This can sometimes happen on networks that block Google Sheets. Try refreshing the page, switching networks, or checking back later.</div>`;
+    } else {
+      message = `<div class="empty-state"><strong>No resources match yet</strong>Try clearing a filter or searching a different term.</div>`;
+    }
+    grid.innerHTML = message;
     return;
   }
   filtered.forEach(r => {
