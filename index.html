@@ -53,10 +53,17 @@
   font-weight: 700;
   color: var(--ink);
   margin: 28px 0 8px;
+  text-decoration: none; /* Removes any default underline */
 }
-  .about-subhead + p {
+
+.about-subhead:hover {
+  text-decoration: underline; /* Underlines text on mouse hover */
+}
+
+.about-subhead + p {
   margin-top: 0;
 }
+  
   /* ==========================================================
      COLOR PALETTE
      ----------------------------------------------------------
