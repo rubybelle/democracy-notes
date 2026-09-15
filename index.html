@@ -1052,11 +1052,11 @@ function showResults(category, labelText) {
    all the way to Q1 (not wherever they left off in Q2). */
 function showSurvey() {
   document.getElementById("results-view").style.display = "none";
+  document.getElementById("about-view").style.display = "none";
   document.getElementById("survey-view").style.display = "block";
   showQ1();
   window.scrollTo(0, 0);
-}
- 
+} 
 /* "Clear all filters" button — wipes every filter back to empty
    and shows the full unfiltered list again. */
 function clearFilters() {
