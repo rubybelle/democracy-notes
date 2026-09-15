@@ -559,7 +559,7 @@
     <!-- QUESTION 1: shown first, always -->
     <div id="q1-step">
       <div class="survey-eyebrow">Before you dive in</div>
-      <h1 class="survey-title">What part of the democracy world are you in?</h1>
+<h1 class="survey-title">I'm looking for:</h1>
       <p class="survey-sub">See resources most relevant to you. You can always change your selection later. </p>
       <!-- This empty div gets filled with buttons by JavaScript
            (see renderQ1() below) — it's a container, not hardcoded
@@ -740,39 +740,25 @@ const GEO_OPTIONS = ["Global","North America","US","Regional","State-specific","
    times below) — the "...NONPROFIT_ROLE_OPTIONS" syntax means
    "insert every item from that list here."
 ------------------------------------------------------------ */
-const Q1_OPTIONS = ["Elections", "Movement", "Nonprofit", "Philanthropy", "Care professional"];
- 
-const NONPROFIT_ROLE_OPTIONS = ["Nonprofit executives", "Nonprofit staff", "Nonprofit managers"];
- 
+const Q1_OPTIONS = ["Funding", "Information", "Programs", "Services", "Organizations"]; 
 const BRANCHES = {
-  "Elections": {
+  "Funding": { direct: true, category: "Funding" },
+  "Services": { direct: true, category: "Services" },
+  "Organizations": { direct: true, category: "Conveners and connectors" },
+  "Information": {
     direct: false,
-    q2title: "Which best describes you?",
-    q2: ["Election officials/professionals", "Campaign staff", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks"],
-    skipLabel: "Skip and show me all resources for the election space",
-    skipWho: "elections"
-
+    q2title: "Which type of information are you looking for?",
+    q2: ["Resource banks", "Tactics and case studies", "Somatic and healing", "Research and reports"],
+    skipLabel: "Skip and show me all information resources",
+    skipWho: "information"
   },
-  
-  "Movement": {
+  "Programs": {
     direct: false,
-    q2title: "Which best describes you?",
-    q2: ["Movement folks", ...NONPROFIT_ROLE_OPTIONS, "BIPOC folks", "Leaders"],
-        skipLabel: "Skip and show me all resources for the movement space",
-    skipWho: "movement"
-
-  },
-  "Nonprofit": {
-    direct: false,
-    q2title: "Which best describes your role?",
-    q2: [...NONPROFIT_ROLE_OPTIONS, "Leaders"],
-    skipLabel: "Skip and show me all resources for nonprofits",
-    skipWho: "nonprofits"
-  },  
-  "Philanthropy": { direct: true, audience: "Philanthropy" },
-  "Care professional": { direct: true, audience: "Care professionals" }
-};
- 
+    q2title: "Which type of program are you looking for?",
+    q2: ["Sabbaticals", "Fellowships", "Trainings", "Professional development"],
+    skipLabel: "Skip and show me all programs",
+    skipWho: "programs"
+  }}; 
 /* ------------------------------------------------------------
    LIVE STATE
    ------------------------------------------------------------
@@ -921,7 +907,7 @@ function renderQ1() {
 function handleQ1Select(option) {
   const branch = BRANCHES[option];
   if (branch.direct) {
-    showResults(branch.audience);
+    showResults(branch.category);
     return;
   }
   document.getElementById("q2-title").textContent = branch.q2title;
@@ -1042,29 +1028,28 @@ function syncCheckboxes(key, stateSet) {
    "Resources for ___" heading, resets any old filters, and — if
    an identity was picked (as opposed to "Skip") — pre-checks that
    one audience checkbox so the grid opens already filtered. */
-function showResults(identity, labelText) {
+function showResults(category, labelText) {
   history.pushState({ page: "results" }, "");
-  activeIdentity = identity;
+  activeIdentity = category;
   document.getElementById("survey-view").style.display = "none";
   document.getElementById("results-view").style.display = "block";
 
-  const identities = Array.isArray(identity) ? identity : (identity ? [identity] : []);
+  const categories = Array.isArray(category) ? category : (category ? [category] : []);
 
   state.categories.clear();
   state.audiences.clear();
   state.search = "";
   document.getElementById("search").value = "";
-  syncCheckboxes("category", state.categories);
-  updateDropdownLabel("category", "Category", state.categories);
-
-  identities.forEach(id => state.audiences.add(id));
   syncCheckboxes("audience", state.audiences);
   updateDropdownLabel("audience", "Audience", state.audiences);
 
+  categories.forEach(c => state.categories.add(c));
+  syncCheckboxes("category", state.categories);
+  updateDropdownLabel("category", "Category", state.categories);
+
   renderGrid();
   window.scrollTo(0, 0);
-}
- 
+} 
 /* "Change who you are" button — goes back to the survey, resetting
    all the way to Q1 (not wherever they left off in Q2). */
 function showSurvey() {
