@@ -542,8 +542,8 @@
       Democracy Notes Wellbeing Resource Library
     </button>
     <button class="skip-btn" id="about-link">About</button>
-    <a href="https://democracynotes.substack.com/" target="_blank" rel="noopener">
-      <img src="logo.png" alt="logo" class="header-logo">
+<a href="https://democracynotes.substack.com/" target="_blank" rel="noopener">
+      <img src="logo.png" alt="Democracy Notes logo — opens the Democracy Notes Substack" class="header-logo">
     </a>
 </header>  <!-- ============================================================
      SURVEY SECTION
@@ -609,7 +609,7 @@
       <button class="clear-filters" id="clear-filters">Clear all filters</button>
     </div>
  
-    <div class="count-line" id="count-line"></div>
+    <div class="count-line" id="count-line" aria-live="polite"></div>
     <!-- The tile cards themselves get built and inserted here
          by JavaScript's renderGrid() function — there is no
          tile HTML written by hand anywhere in this file. -->
@@ -865,6 +865,21 @@ function init() {
   buildDropdownFilter("category-dd", "category", "Category", CATEGORY_OPTIONS, state.categories);
   buildDropdownFilter("audience-dd", "audience", "Audience", AUDIENCE_OPTIONS, state.audiences);
   buildDropdownFilter("geography-dd", "geography", "Geography", GEO_OPTIONS, state.geographies);
+
+  // If the URL contains shared/bookmarked filters, jump straight to
+  // a matching results view instead of showing the survey first.
+  if (loadStateFromURL()) {
+    document.getElementById("survey-view").style.display = "none";
+    document.getElementById("results-view").style.display = "block";
+    document.getElementById("search").value = state.search;
+    syncCheckboxes("category", state.categories);
+    updateDropdownLabel("category", "Category", state.categories);
+    syncCheckboxes("audience", state.audiences);
+    updateDropdownLabel("audience", "Audience", state.audiences);
+    syncCheckboxes("geography", state.geographies);
+    updateDropdownLabel("geography", "Geography", state.geographies);
+  }
+
   loadLiveData();
  
   
@@ -1070,9 +1085,10 @@ function showSurvey() {
   document.getElementById("about-view").style.display = "none";
   document.getElementById("survey-view").style.display = "block";
   showQ1();
+  history.replaceState(history.state, "", window.location.pathname);
   window.scrollTo(0, 0);
-} 
-/* "Clear all filters" button — wipes every filter back to empty
+}
+  /* "Clear all filters" button — wipes every filter back to empty
    and shows the full unfiltered list again. */
 function clearFilters() {
   state.categories.clear();
@@ -1126,6 +1142,33 @@ function safeLink(url) {
   } catch (e) { /* not a valid URL at all */ }
   return "#";
 }
+  /* Reads filters out of the page's URL (e.g. ?category=Funding) and
+   loads them into "state," so a shared/bookmarked link reproduces
+   the same filtered view. Returns true if any filters were found. */
+function loadStateFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if ([...params.keys()].length === 0) return false;
+  if (params.has("search")) state.search = params.get("search").toLowerCase();
+  if (params.has("category")) params.get("category").split(",").forEach(c => state.categories.add(c));
+  if (params.has("audience")) params.get("audience").split(",").forEach(a => state.audiences.add(a));
+  if (params.has("geo")) params.get("geo").split(",").forEach(g => state.geographies.add(g));
+  return true;
+}
+
+/* Writes the current filters into the URL as query parameters,
+   using replaceState (not pushState) so this never clutters the
+   browser's back-button history — it just keeps the address bar
+   in sync so the current view can be copied/shared. */
+function syncURLToState() {
+  const params = new URLSearchParams();
+  if (state.search) params.set("search", state.search);
+  if (state.categories.size) params.set("category", [...state.categories].join(","));
+  if (state.audiences.size) params.set("audience", [...state.audiences].join(","));
+  if (state.geographies.size) params.set("geo", [...state.geographies].join(","));
+  const query = params.toString();
+  history.replaceState(history.state, "", window.location.pathname + (query ? "?" + query : ""));
+}
+  
   function renderGrid() {
   const grid = document.getElementById("grid");
   const countLine = document.getElementById("count-line");
@@ -1147,7 +1190,8 @@ function safeLink(url) {
     // always pass through regardless of which audience is picked,
     // since they're meant for everyone.
     if (state.audiences.size > 0) {
-    const overlap = r.audience.some(a => state.audiences.has(a)) || (r.audience.includes("Everyone") && !state.audiences.has("Philanthropy"));      if (!overlap) return false;
+      const overlap = r.audience.some(a => state.audiences.has(a)) || r.audience.includes("Everyone");
+      if (!overlap) return false;
     }
     // Geography: if any geography checkboxes are checked, the
     // resource's broad geography (Global/US/State-specific/
@@ -1157,9 +1201,24 @@ function safeLink(url) {
     }
     return true; // resource passed every active filter check above
   });
- 
+
+  // When an audience is selected, put resources that directly match
+  // that audience ahead of ones only included via the "Everyone"
+  // catch-all — so e.g. Philanthropy-specific resources appear
+  // before general ones when someone selects Philanthropy.
+  if (state.audiences.size > 0) {
+    filtered.sort((a, b) => {
+      const aDirect = a.audience.some(x => state.audiences.has(x));
+      const bDirect = b.audience.some(x => state.audiences.has(x));
+      if (aDirect === bDirect) return 0;
+      return aDirect ? -1 : 1;
+    });
+  }
+
   countLine.textContent = `Showing ${filtered.length} of ${DATA.length} resources`;
- 
+  if (document.getElementById("results-view").style.display === "block") {
+    syncURLToState();
+  } 
     if (filtered.length === 0) {
     let message;
     if (!dataLoaded) {
