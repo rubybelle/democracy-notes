@@ -511,7 +511,7 @@
      than a solid block. */
   .tag.cat { background: rgba(9,17,109,0.08); color: var(--navy); }
   .tag.aud { background: rgba(201,151,0,0.16); color: var(--gold-deep); }
- 
+  .tag.geo { background: rgba(198,93,17,0.12); color: #C65D11; } 
   .empty-state {
     grid-column: 1 / -1; /* spans the full grid width, even though
                              the grid normally has multiple columns */
@@ -1142,14 +1142,14 @@ function renderGrid() {
     // Template literals (the backtick-quoted string below) let us
     // build a chunk of HTML with variables plugged in via ${...}.
     // This is the equivalent of paste0() in R, but for HTML text.
-    tile.innerHTML = `
-      ${geoLabel ? `<div class="tile-geo">${geoLabel}</div>` : ""}
+  tile.innerHTML = `
       <div class="tile-name"><a href="${r.link}" target="_blank" rel="noopener">${r.name}</a></div>
       <div class="tile-org">${r.org}</div>
       <div class="tile-desc">${r.description}</div>
       <div class="tile-tags">
         ${r.category.map(c => `<span class="tag cat">${c}</span>`).join("")}
         ${r.audience.map(a => `<span class="tag aud">${a}</span>`).join("")}
+        ${geoLabel ? `<span class="tag geo">${geoLabel}</span>` : ""}
       </div>
     `;
     grid.appendChild(tile);
