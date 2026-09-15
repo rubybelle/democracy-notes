@@ -33,7 +33,7 @@
 <!-- This is the tab title / browser title, and also what shows up if
      someone bookmarks or Googles the page. -->
 <title>Wellbeing Resource Library</title>
- 
+ <link rel="icon" type="image/png" href="favicon.png">
 <!-- These two lines load the fonts used on the page (Crimson Pro for
      headings, Public Sans for small text like filters/tags) from Google
      Fonts, a free font hosting service. -->
@@ -559,7 +559,7 @@
     <!-- QUESTION 1: shown first, always -->
     <div id="q1-step">
       <div class="survey-eyebrow">Before you dive in</div>
-<h1 class="survey-title">I'm looking for:</h1>
+<h1 class="survey-title">I'm looking for...</h1>
       <!-- This empty div gets filled with buttons by JavaScript
            (see renderQ1() below) — it's a container, not hardcoded
            buttons, so the options live in one place in the code
@@ -862,11 +862,11 @@ function init() {
   document.getElementById("clear-filters").addEventListener("click", clearFilters);
   window.addEventListener("popstate", () => {
     document.getElementById("results-view").style.display = "none";
+    document.getElementById("about-view").style.display = "none";
     document.getElementById("survey-view").style.display = "block";
     showQ1();
     window.scrollTo(0, 0);
   });
-
  
   // Clicking ANYWHERE on the page closes any open dropdown panel,
   // unless the click was inside that dropdown itself. This is the
@@ -936,13 +936,14 @@ function showQ1() {
   document.getElementById("q2-step").style.display = "none";
   document.getElementById("q1-step").style.display = "block";
 }
-  function showAbout() {
+function showAbout() {
+  history.pushState({ page: "about" }, "");
   document.getElementById("survey-view").style.display = "none";
   document.getElementById("results-view").style.display = "none";
   document.getElementById("about-view").style.display = "block";
   window.scrollTo(0, 0);
 }
-function hideAbout() {
+  function hideAbout() {
   document.getElementById("about-view").style.display = "none";
   document.getElementById("survey-view").style.display = "block";
   showQ1();
