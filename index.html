@@ -1089,7 +1089,30 @@ function clearFilters() {
      4. Otherwise, builds one tile per matching resource and
         inserts it into the grid.
 ------------------------------------------------------------ */
-function renderGrid() {
+/* Converts any string into HTML-safe text, so characters like < >
+   & " in spreadsheet cells can never be interpreted as real HTML/
+   script by the browser — they just display as plain text. This
+   is the fix for "spreadsheet text is inserted without escaping." */
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : String(str);
+  return div.innerHTML;
+}
+
+/* Same idea, but also safe for use inside an HTML attribute
+   (like href="..."), and only allows real http/https links through
+   — anything else (a stray javascript: link, a malformed cell,
+   etc.) falls back to "#" instead of being inserted as-is. */
+function safeLink(url) {
+  try {
+    const parsed = new URL(url, window.location.href);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return escapeHTML(parsed.href).replace(/"/g, "&quot;");
+    }
+  } catch (e) { /* not a valid URL at all */ }
+  return "#";
+}
+  function renderGrid() {
   const grid = document.getElementById("grid");
   const countLine = document.getElementById("count-line");
   grid.innerHTML = "";
@@ -1141,14 +1164,14 @@ function renderGrid() {
     // Template literals (the backtick-quoted string below) let us
     // build a chunk of HTML with variables plugged in via ${...}.
     // This is the equivalent of paste0() in R, but for HTML text.
-  tile.innerHTML = `
-      <div class="tile-name"><a href="${r.link}" target="_blank" rel="noopener">${r.name}</a></div>
-      <div class="tile-org">${r.org}</div>
-      <div class="tile-desc">${r.description}</div>
+    tile.innerHTML = `
+      <div class="tile-name"><a href="${safeLink(r.link)}" target="_blank" rel="noopener">${escapeHTML(r.name)}</a></div>
+      <div class="tile-org">${escapeHTML(r.org)}</div>
+      <div class="tile-desc">${escapeHTML(r.description)}</div>
       <div class="tile-tags">
-        ${r.category.map(c => `<span class="tag cat">${c}</span>`).join("")}
-        ${r.audience.map(a => `<span class="tag aud">${a}</span>`).join("")}
-        ${geoLabel ? `<span class="tag geo">${geoLabel}</span>` : ""}
+        ${r.category.map(c => `<span class="tag cat">${escapeHTML(c)}</span>`).join("")}
+        ${r.audience.map(a => `<span class="tag aud">${escapeHTML(a)}</span>`).join("")}
+        ${geoLabel ? `<span class="tag geo">${escapeHTML(geoLabel)}</span>` : ""}
       </div>
     `;
     grid.appendChild(tile);
